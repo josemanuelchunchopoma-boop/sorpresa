@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d25">
+  <title>Para Lizbeth, con cariño</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --night: #080d25;
+      --blue: #9bcaff;
+      --flower: #78aaff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--night);
+      color: #fff;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .scene {
+      position: relative;
+      display: grid;
+      min-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(55, 73, 132, .35), transparent 48%),
+        radial-gradient(ellipse at 78% 20%, rgba(38, 57, 114, .3), transparent 34%),
+        linear-gradient(180deg, #080d25 0%, #101839 55%, #171d3a 100%);
+    }
+
+    .scene::before {
+      position: absolute;
+      z-index: -1;
+      right: -12%;
+      bottom: -37%;
+      left: -12%;
+      height: 60%;
+      border-radius: 50% 50% 0 0;
+      background: linear-gradient(180deg, rgba(22, 35, 65, .1), #10172e 72%);
+      content: "";
+      filter: blur(3px);
+    }
+
+    .stars, .fireworks {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .stars { z-index: -1; }
+    .fireworks { z-index: 1; }
+
+    .heart-message {
+      position: absolute;
+      z-index: 3;
+      top: 20%;
+      left: 50%;
+      color: #fff4fa;
+      font-size: clamp(1.5rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: .14em;
+      opacity: 0;
+      pointer-events: none;
+      text-shadow: 0 0 8px #fff, 0 0 22px #ff78b7, 0 0 42px #f04b9a;
+      transform: translate(-50%, -50%) scale(.5);
+      white-space: nowrap;
+    }
+
+    .heart-message.visible {
+      animation: heart-message-pop 3.4s ease-out both;
+    }
+
+    @keyframes heart-message-pop {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+      12% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+      22% { transform: translate(-50%, -50%) scale(1); }
+      72% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.05); }
+    }
+
+    .loader {
+      position: absolute;
+      z-index: 5;
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-content: center;
+      justify-items: center;
+      gap: 16px;
+      background:
+        radial-gradient(ellipse at 50% 47%, rgba(40, 41, 92, .65), transparent 46%),
+        linear-gradient(145deg, #100d2b, #080d25 70%);
+      transition: opacity 1.1s ease, visibility 1.1s ease;
+    }
+
+    .loader.hidden { opacity: 0; visibility: hidden; }
+
+    .loader-heart {
+      width: clamp(130px, 24vw, 190px);
+      overflow: visible;
+      filter: drop-shadow(0 0 17px rgba(255, 93, 157, .4));
+      animation: heartbeat 1.15s ease-in-out infinite;
+    }
+
+    .loader-title {
+      margin: 4px 0 0;
+      color: #ffe4f0;
+      font-size: clamp(1.2rem, 4vw, 1.65rem);
+      font-weight: 400;
+      letter-spacing: .04em;
+    }
+
+    .loader-caption {
+      margin: -8px 0 0;
+      color: #c3b9d8;
+      font: 500 .78rem/1.4 system-ui, sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .percentage {
+      min-width: 4ch;
+      color: #ffd6e6;
+      font: 600 1.1rem/1 system-ui, sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @keyframes heartbeat {
+      50% { transform: scale(1.07); }
+    }
+
+    .moon {
+      position: absolute;
+      top: clamp(36px, 8vh, 82px);
+      right: clamp(34px, 12vw, 165px);
+      width: clamp(62px, 10vw, 104px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #fff6d9;
+      box-shadow: 0 0 25px 5px rgba(255, 239, 190, .26), 0 0 90px 28px rgba(167, 188, 255, .12);
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: opacity 1.8s ease, transform 1.8s ease;
+    }
+
+    .moon::after {
+      position: absolute;
+      top: -5%;
+      left: 23%;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #111936;
+      content: "";
+    }
+
+    .night .moon { opacity: .95; transform: translateY(0); }
+
+    .shooting-star {
+      position: absolute;
+      top: 18%;
+      left: 6%;
+      width: 120px;
+      height: 1px;
+      opacity: 0;
+      background: linear-gradient(90deg, transparent, #d7e7ff 45%, #fff);
+      box-shadow: 0 0 8px #a9caff;
+      transform: rotate(24deg);
+    }
+
+    .shooting-star.one { animation: shoot 1.15s 3.8s ease-out both; }
+    .shooting-star.two {
+      top: 31%;
+      left: 46%;
+      width: 90px;
+      animation: shoot 1.15s 6.2s ease-out both;
+    }
+
+    @keyframes shoot {
+      0% { opacity: 0; transform: translate(0, 0) rotate(24deg); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translate(260px, 116px) rotate(24deg); }
+    }
+
+    .dedication {
+      position: absolute;
+      z-index: 2;
+      top: clamp(19%, 25vh, 28%);
+      left: 50%;
+      width: min(700px, 88vw);
+      min-height: 180px;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    .dedication h1 {
+      margin: 0 0 16px;
+      color: #f6eaff;
+      font-size: clamp(1.9rem, 6vw, 3.6rem);
+      font-weight: 400;
+      letter-spacing: .035em;
+      opacity: 0;
+      text-shadow: 0 0 24px rgba(195, 169, 255, .35);
+      transition: opacity 1.2s ease;
+    }
+
+    .dedication p {
+      min-height: 5.2em;
+      margin: 0 auto;
+      color: #d7dff7;
+      font-size: clamp(1rem, 2.6vw, 1.3rem);
+      line-height: 1.8;
+      text-wrap: balance;
+      text-shadow: 0 2px 12px #080d25;
+    }
+
+    .dedication h1.visible { opacity: 1; }
+    .cursor {
+      display: inline-block;
+      width: 1px;
+      height: 1em;
+      margin-left: 3px;
+      vertical-align: -.12em;
+      background: #c7a9ff;
+      animation: blink .8s steps(2, start) infinite;
+    }
+    @keyframes blink { to { visibility: hidden; } }
+
+    .garden {
+      position: absolute;
+      z-index: 2;
+      right: 0;
+      bottom: -7px;
+      left: 0;
+      display: flex;
+      height: clamp(200px, 38vh, 330px);
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(2px, 3vw, 34px);
+      opacity: 0;
+      transform: translateY(35px);
+      transition: opacity 1.3s ease, transform 1.5s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .night .garden { opacity: 1; transform: translateY(0); }
+
+    .tulip {
+      width: clamp(86px, 17vw, 165px);
+      height: 100%;
+      overflow: visible;
+      transform-origin: 50% 100%;
+      animation: sway 4.4s ease-in-out infinite;
+    }
+
+    .tulip:nth-child(2) { height: 86%; animation-delay: -.8s; }
+    .tulip:nth-child(3) { height: 96%; animation-delay: -1.5s; }
+    .tulip:nth-child(4) { height: 77%; animation-delay: -.4s; }
+    .tulip:nth-child(5) { height: 91%; animation-delay: -1.1s; }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2.4deg); }
+    }
+
+    .stem {
+      fill: none;
+      stroke: #477c72;
+      stroke-width: 5;
+      stroke-linecap: round;
+    }
+
+    .leaf {
+      fill: #437c70;
+      transform-box: fill-box;
+      transform-origin: bottom center;
+      animation: leaf-sway 3.4s ease-in-out infinite;
+    }
+
+    @keyframes leaf-sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    .petal {
+      fill: url(#petalGradient);
+      stroke: rgba(190, 216, 255, .65);
+      stroke-width: 1.2;
+    }
+
+    .hills {
+      position: absolute;
+      z-index: 0;
+      right: -5%;
+      bottom: -1px;
+      left: -5%;
+      height: 20%;
+      border-radius: 50% 50% 0 0 / 26% 26% 0 0;
+      background: linear-gradient(180deg, #17283b, #0a1326 80%);
+      box-shadow: 0 -12px 35px rgba(33, 51, 77, .22);
+    }
+
+    .replay, .firework-again {
+      position: absolute;
+      z-index: 4;
+      left: 22px;
+      padding: 9px 13px;
+      border: 1px solid rgba(223, 230, 255, .25);
+      border-radius: 999px;
+      background: rgba(11, 16, 40, .45);
+      color: #d9e2ff;
+      cursor: pointer;
+      font: 500 .78rem system-ui, sans-serif;
+      opacity: 0;
+      transition: opacity .5s ease, background .2s ease;
+    }
+
+    .replay { top: 22px; }
+    .firework-again { top: 64px; }
+    .night .replay, .night .firework-again { opacity: .8; }
+    .replay:hover, .firework-again:hover { background: rgba(50, 57, 98, .65); opacity: 1; }
+    .replay:focus-visible, .firework-again:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    @media (max-height: 600px) {
+      .dedication { top: 12%; }
+      .dedication p { min-height: 4em; }
+      .garden { height: 43vh; }
+      .moon { top: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene" id="scene">
+    <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+    <canvas class="fireworks" id="fireworks" aria-hidden="true"></canvas>
+    <div class="heart-message" id="heartMessage" aria-hidden="true">TE AMO</div>
+    <div class="moon" aria-hidden="true"></div>
+    <div class="shooting-star one" aria-hidden="true"></div>
+    <div class="shooting-star two" aria-hidden="true"></div>
+
+    <section class="dedication" aria-live="polite">
+      <h1 id="title">Para Lizbeth</h1>
+      <p><span id="message"></span><span class="cursor" id="cursor" aria-hidden="true"></span></p>
+    </section>
+
+    <div class="hills" aria-hidden="true"></div>
+    <div class="garden" aria-hidden="true">
+      <svg class="tulip" viewBox="0 0 120 280">
+        <defs>
+          <linearGradient id="petalGradient" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#b9d7ff"/><stop offset=".48" stop-color="#709eff"/><stop offset="1" stop-color="#3859bd"/>
+          </linearGradient>
+        </defs>
+        <path class="stem" d="M61 267 C57 213 68 164 60 107"/>
+        <path class="leaf" d="M58 213 C23 195 20 168 24 151 C51 159 66 181 58 213Z"/>
+        <path class="leaf" d="M62 232 C92 207 99 187 95 169 C69 180 56 203 62 232Z"/>
+        <path class="petal" d="M60 111 C38 103 34 76 43 49 C51 65 57 70 60 72 C63 70 69 65 77 49 C87 76 82 103 60 111Z"/>
+        <path class="petal" d="M43 51 C30 69 32 95 49 105 C44 83 47 65 60 72 C57 60 52 53 43 51Z"/>
+        <path class="petal" d="M77 51 C90 69 88 95 71 105 C76 83 73 65 60 72 C63 60 68 53 77 51Z"/>
+      </svg>
+      <svg class="tulip" viewBox="0 0 120 280">
+        <path class="stem" d="M61 267 C57 213 68 164 60 107"/>
+        <path class="leaf" d="M58 213 C23 195 20 168 24 151 C51 159 66 181 58 213Z"/>
+        <path class="leaf" d="M62 232 C92 207 99 187 95 169 C69 180 56 203 62 232Z"/>
+        <path class="petal" d="M60 111 C38 103 34 76 43 49 C51 65 57 70 60 72 C63 70 69 65 77 49 C87 76 82 103 60 111Z"/>
+        <path class="petal" d="M43 51 C30 69 32 95 49 105 C44 83 47 65 60 72 C57 60 52 53 43 51Z"/>
+        <path class="petal" d="M77 51 C90 69 88 95 71 105 C76 83 73 65 60 72 C63 60 68 53 77 51Z"/>
+      </svg>
+      <svg class="tulip" viewBox="0 0 120 280">
+        <path class="stem" d="M61 267 C57 213 68 164 60 107"/>
+        <path class="leaf" d="M58 213 C23 195 20 168 24 151 C51 159 66 181 58 213Z"/>
+        <path class="leaf" d="M62 232 C92 207 99 187 95 169 C69 180 56 203 62 232Z"/>
+        <path class="petal" d="M60 111 C38 103 34 76 43 49 C51 65 57 70 60 72 C63 70 69 65 77 49 C87 76 82 103 60 111Z"/>
+        <path class="petal" d="M43 51 C30 69 32 95 49 105 C44 83 47 65 60 72 C57 60 52 53 43 51Z"/>
+        <path class="petal" d="M77 51 C90 69 88 95 71 105 C76 83 73 65 60 72 C63 60 68 53 77 51Z"/>
+      </svg>
+      <svg class="tulip" viewBox="0 0 120 280">
+        <path class="stem" d="M61 267 C57 213 68 164 60 107"/>
+        <path class="leaf" d="M58 213 C23 195 20 168 24 151 C51 159 66 181 58 213Z"/>
+        <path class="leaf" d="M62 232 C92 207 99 187 95 169 C69 180 56 203 62 232Z"/>
+        <path class="petal" d="M60 111 C38 103 34 76 43 49 C51 65 57 70 60 72 C63 70 69 65 77 49 C87 76 82 103 60 111Z"/>
+        <path class="petal" d="M43 51 C30 69 32 95 49 105 C44 83 47 65 60 72 C57 60 52 53 43 51Z"/>
+        <path class="petal" d="M77 51 C90 69 88 95 71 105 C76 83 73 65 60 72 C63 60 68 53 77 51Z"/>
+      </svg>
+      <svg class="tulip" viewBox="0 0 120 280">
+        <path class="stem" d="M61 267 C57 213 68 164 60 107"/>
+        <path class="leaf" d="M58 213 C23 195 20 168 24 151 C51 159 66 181 58 213Z"/>
+        <path class="leaf" d="M62 232 C92 207 99 187 95 169 C69 180 56 203 62 232Z"/>
+        <path class="petal" d="M60 111 C38 103 34 76 43 49 C51 65 57 70 60 72 C63 70 69 65 77 49 C87 76 82 103 60 111Z"/>
+        <path class="petal" d="M43 51 C30 69 32 95 49 105 C44 83 47 65 60 72 C57 60 52 53 43 51Z"/>
+        <path class="petal" d="M77 51 C90 69 88 95 71 105 C76 83 73 65 60 72 C63 60 68 53 77 51Z"/>
+      </svg>
+    </div>
+
+    <button class="replay" id="replay" type="button">↻ Volver a ver</button>
+    <button class="firework-again" id="fireworkAgain" type="button">♡ Repetir fuegos artificiales</button>
+
+    <section class="loader" id="loader" aria-label="Preparando una sorpresa">
+      <svg class="loader-heart" viewBox="0 0 200 180" role="img" aria-label="Un corazón se está llenando">
+        <defs>
+          <linearGradient id="heartGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#ff8db8"/><stop offset="1" stop-color="#e63d83"/>
+          </linearGradient>
+          <clipPath id="heartClip">
+            <path d="M100 169 C87 157 17 105 17 57 C17 17 68 8 100 48 C132 8 183 17 183 57 C183 105 113 157 100 169Z"/>
+          </clipPath>
+        </defs>
+        <path d="M100 169 C87 157 17 105 17 57 C17 17 68 8 100 48 C132 8 183 17 183 57 C183 105 113 157 100 169Z" fill="#30223f" stroke="#ffb0cf" stroke-width="3"/>
+        <rect id="heartFill" x="10" y="175" width="180" height="170" fill="url(#heartGradient)" clip-path="url(#heartClip)"/>
+        <path d="M100 169 C87 157 17 105 17 57 C17 17 68 8 100 48 C132 8 183 17 183 57 C183 105 113 157 100 169Z" fill="none" stroke="#ffd6e6" stroke-width="2"/>
+      </svg>
+      <p class="loader-title">Una sorpresa para Lizbeth</p>
+      <p class="loader-caption">Preparando algo bonito</p>
+      <span class="percentage" id="percentage">0%</span>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const scene = document.getElementById("scene");
+      const loader = document.getElementById("loader");
+      const percentage = document.getElementById("percentage");
+      const heartFill = document.getElementById("heartFill");
+      const title = document.getElementById("title");
+      const message = document.getElementById("message");
+      const cursor = document.getElementById("cursor");
+      const heartMessage = document.getElementById("heartMessage");
+      const starsCanvas = document.getElementById("stars");
+      const fireworksCanvas = document.getElementById("fireworks");
+      const starContext = starsCanvas.getContext("2d");
+      const fireworkContext = fireworksCanvas.getContext("2d");
+      const dedication = "Que esta noche te recuerde lo especial que eres. Ojalá cada estrella te regale un deseo, y cada día una razón nueva para sonreír. Gracias por iluminar, con tu forma de ser, el mundo de quienes tenemos la suerte de conocerte.";
+      let animationFrame;
+      let typingTimer;
+      let fireworkTimer;
+      let stars = [];
+      let particles = [];
+
+      function resizeCanvases() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        for (const canvas of [starsCanvas, fireworksCanvas]) {
+          canvas.width = Math.round(window.innerWidth * ratio);
+          canvas.height = Math.round(window.innerHeight * ratio);
+          canvas.style.width = `${window.innerWidth}px`;
+          canvas.style.height = `${window.innerHeight}px`;
+          canvas.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+        stars = Array.from({ length: Math.min(150, Math.floor(window.innerWidth / 8)) }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight * .78,
+          radius: Math.random() * 1.35 + .25,
+          phase: Math.random() * Math.PI * 2,
+          speed: Math.random() * .025 + .008
+        }));
+      }
+
+      function drawStars() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        starContext.clearRect(0, 0, w, h);
+        for (const star of stars) {
+          star.phase += star.speed;
+          const alpha = .35 + (Math.sin(star.phase) + 1) * .32;
+          starContext.beginPath();
+          starContext.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          starContext.fillStyle = `rgba(226, 235, 255, ${alpha})`;
+          starContext.fill();
+        }
+
+        fireworkContext.clearRect(0, 0, w, h);
+        particles = particles.filter(particle => particle.life > 0);
+        for (const particle of particles) {
+          if (particle.targetX !== undefined && particle.targetY !== undefined) {
+            particle.progress = Math.min(particle.progress + .055, 1);
+            particle.x = particle.centerX + (particle.targetX - particle.centerX) * particle.progress;
+            particle.y = particle.centerY + (particle.targetY - particle.centerY) * particle.progress;
+          } else {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += .012;
+          }
+          particle.life -= 1;
+          const alpha = Math.max(0, particle.life / particle.maxLife);
+          fireworkContext.beginPath();
+          fireworkContext.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+          fireworkContext.fillStyle = `rgba(${particle.color}, ${alpha})`;
+          fireworkContext.shadowBlur = 12;
+          fireworkContext.shadowColor = `rgba(${particle.color}, ${alpha})`;
+          fireworkContext.fill();
+        }
+        fireworkContext.shadowBlur = 0;
+        animationFrame = requestAnimationFrame(drawStars);
+      }
+
+      function launchHeartFirework() {
+        particles = [];
+        heartMessage.classList.remove("visible");
+        void heartMessage.offsetWidth;
+        heartMessage.classList.add("visible");
+        const centerX = window.innerWidth * .5;
+        const centerY = window.innerHeight * .2;
+        const scale = Math.min(window.innerWidth, window.innerHeight) * .014;
+        const count = 150;
+        for (let i = 0; i < count; i++) {
+          const t = (Math.PI * 2 * i) / count;
+          const x = 16 * Math.pow(Math.sin(t), 3);
+          const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+          const targetX = centerX + x * scale;
+          const targetY = centerY - y * scale;
+          const dx = targetX - centerX;
+          const dy = targetY - centerY;
+          const color = i % 3 === 0 ? "255, 188, 221" : (i % 3 === 1 ? "255, 239, 190" : "174, 205, 255");
+          particles.push({
+            x: centerX, y: centerY, centerX, centerY,
+            targetX: centerX + dx, targetY: centerY + dy,
+            progress: 0,
+            life: 105 + Math.random() * 15,
+            maxLife: 120,
+            radius: 1.8 + Math.random() * 1.8,
+            color,
+            vx: 0,
+            vy: 0
+          });
+        }
+        for (let i = 0; i < 32; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1 + Math.random() * 2;
+          particles.push({
+            x: centerX, y: centerY,
+            vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            life: 40 + Math.random() * 25, maxLife: 65,
+            radius: 1 + Math.random() * 1.5, color: "255, 224, 188"
+          });
+        }
+      }
+
+      function typeDedication() {
+        clearInterval(typingTimer);
+        message.textContent = "";
+        cursor.style.display = "inline-block";
+        title.classList.add("visible");
+        const words = dedication.split(/\s+/);
+        let index = 0;
+        typingTimer = setInterval(() => {
+          message.textContent += `${index === 0 ? "" : " "}${words[index]}`;
+          index += 1;
+          if (index >= words.length) {
+            clearInterval(typingTimer);
+            cursor.style.display = "none";
+            fireworkTimer = setTimeout(launchHeartFirework, 450);
+          }
+        }, 320);
+      }
+
+      function startScene() {
+        clearTimeout(fireworkTimer);
+        particles = [];
+        heartMessage.classList.remove("visible");
+        scene.classList.remove("night");
+        title.classList.remove("visible");
+        message.textContent = "";
+        cursor.style.display = "inline-block";
+        loader.classList.remove("hidden");
+        percentage.textContent = "0%";
+        heartFill.setAttribute("y", "175");
+        heartFill.setAttribute("height", "0");
+
+        const duration = 5000;
+        const started = performance.now();
+        function load(now) {
+          const progress = Math.min((now - started) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 2);
+          const percent = Math.floor(progress * 100);
+          percentage.textContent = `${percent}%`;
+          const fillHeight = eased * 170;
+          heartFill.setAttribute("y", String(175 - fillHeight));
+          heartFill.setAttribute("height", String(fillHeight));
+          if (progress < 1) {
+            requestAnimationFrame(load);
+          } else {
+            loader.classList.add("hidden");
+            scene.classList.add("night");
+            typeDedication();
+          }
+        }
+        requestAnimationFrame(load);
+      }
+
+      window.addEventListener("resize", resizeCanvases);
+      document.getElementById("replay").addEventListener("click", startScene);
+      document.getElementById("fireworkAgain").addEventListener("click", launchHeartFirework);
+      resizeCanvases();
+      drawStars();
+      startScene();
+    })();
+  </script>
+</body>
+</html>
